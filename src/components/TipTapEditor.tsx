@@ -33,28 +33,10 @@ const TipTapEditor = ({ work }: Props) => {
     addKeyboardShortcuts() {
       return {
         "Shift-Space": () => {
-          // Step 1: Take the last 100 words
-          const text = this.editor.getText();
-          const words = text.split(" ");
-          const last100Words = words.slice(-100).join(" ");
-          console.log(last100Words);
-          // Step 2: Search for the first sentence-ending punctuation
-          const match = last100Words.match(/[.!?]/);
-
-          if (match) {
-            // Step 3: Find the position of the punctuation
-            const position = last100Words.indexOf(match[0]);
-
-            // Step 4: Remove everything before and including the punctuation
-            const prompt = last100Words.slice(position + 1).trim();
-            console.log(prompt);
-
-            complete(prompt);
-          } else {
-            // If no punctuation found, use the last 100 words as is
-            complete(last100Words);
-          }
-
+          // take the last 100 words
+          const prompt = this.editor.getText().split(" ").slice(-100).join(" ");
+          console.log(prompt);
+          complete(prompt);
           return true;
         },
       };
