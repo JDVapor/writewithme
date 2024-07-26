@@ -17,12 +17,20 @@ import { useRouter } from "next/navigation";
 
 type Props = {};
 
-const CreateWork = (props: Props) => {
+const CreateWorkDialog = (props: Props) => {
   const router = useRouter();
   const [input, setInput] = React.useState("");
-  const createWork = useMutation({
+  const uploadToFirebase = useMutation({
+    mutationFn: async (workId: string) => {
+      const response = await axios.post("/api/uploadToFirebase", {
+        workId,
+      });
+      return response.data;
+    },
+  });
+  const createWorkbook = useMutation({
     mutationFn: async () => {
-      const response = await axios.post("/api/createWork", {
+      const response = await axios.post("/api/createWorkBook", {
         name: input,
       });
       return response.data;
@@ -32,33 +40,38 @@ const CreateWork = (props: Props) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (input === "") {
-      window.alert("Please enter a title for your new work.");
+      window.alert("Please enter a title for your new workbook.");
       return;
     }
-    createWork.mutate(undefined, {
+    createWorkbook.mutate(undefined, {
       onSuccess: ({ work_id }) => {
-        console.log("Created new work:", { work_id });
-        router.push(`notebook/${work_id}`);
+        console.log("created new work:", { work_id });
+        // hit another endpoint to uplod the temp dalle url to permanent firebase url
+        uploadToFirebase.mutate(work_id);
+        router.push(`/workbook/${work_id}`);
       },
       onError: (error) => {
         console.error(error);
-        window.alert("Failed to create new work");
+        window.alert("Failed to create new workbook.");
       },
     });
   };
+
   return (
     <Dialog>
       <DialogTrigger>
         <div className="border-dashed border-2 flex border-green-600 h-full rounded-lg items-center justify-center sm:flex-col hover:shadow-xl transition hover:-translate-y-1 flex-row p-4">
-          <Plus className="w-6 h-6 text-cyan-600" strokeWidth={3} />
-          <h2 className="font-semibold text-cyan-600 sm:mt-2">New Work</h2>
+          <Plus className="w-6 h-6 text-green-600" strokeWidth={3} />
+          <h2 className="font-semibold text-green-600 sm:mt-2">
+            New Work Book
+          </h2>
         </div>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New Work</DialogTitle>
+          <DialogTitle>New Work Book</DialogTitle>
           <DialogDescription>
-            You can create a new work by clicking below.
+            You can create a new workbook by clicking below.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -69,12 +82,15 @@ const CreateWork = (props: Props) => {
           />
           <div className="h-4"></div>
           <div className="flex items-center gap-2">
+            <Button type="reset" variant={"secondary"}>
+              Cancel
+            </Button>
             <Button
               type="submit"
-              className="bg-cyan-600"
-              disabled={createWork.isLoading}
+              className="bg-green-600"
+              disabled={createWorkbook.isLoading}
             >
-              {createWork.isLoading && (
+              {createWorkbook.isLoading && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               )}
               Create
@@ -86,4 +102,4 @@ const CreateWork = (props: Props) => {
   );
 };
 
-export default CreateWork;
+export default CreateWorkDialog;

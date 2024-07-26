@@ -1,13 +1,17 @@
+// /api/createWorkBook
+
 import { db } from "@/lib/db";
 import { $works } from "@/lib/db/schema";
 import { generateImage, generateImagePrompt } from "@/lib/openai";
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 
+export const runtime = "edge";
+
 export async function POST(req: Request) {
   const { userId } = auth();
   if (!userId) {
-    return new NextResponse("Need to login first", { status: 401 });
+    return new NextResponse("unauthorized", { status: 401 });
   }
   const body = await req.json();
   const { name } = body;
@@ -19,7 +23,9 @@ export async function POST(req: Request) {
   }
   const image_url = await generateImage(image_description);
   if (!image_url) {
-    return new NextResponse("failed to generate image", { status: 500 });
+    return new NextResponse("failed to generate image ", {
+      status: 500,
+    });
   }
 
   const work_ids = await db
@@ -32,6 +38,7 @@ export async function POST(req: Request) {
     .returning({
       insertedId: $works.id,
     });
+
   return NextResponse.json({
     work_id: work_ids[0].insertedId,
   });

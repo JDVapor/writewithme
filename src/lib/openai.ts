@@ -9,7 +9,7 @@ const openai = new OpenAIApi(config);
 export async function generateImagePrompt(name: string) {
   try {
     const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
@@ -33,17 +33,15 @@ export async function generateImagePrompt(name: string) {
 
 export async function generateImage(image_description: string) {
   try {
-    console.log(image_description);
     const response = await openai.createImage({
       prompt: image_description,
       n: 1,
       size: "256x256",
     });
     const data = await response.json();
-    console.log(data);
     const image_url = data.data[0].url;
     return image_url as string;
   } catch (error) {
-    console.error();
+    console.error(error);
   }
 }

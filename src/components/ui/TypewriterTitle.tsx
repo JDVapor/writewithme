@@ -16,13 +16,13 @@ const TypewriterTitle = (props: Props) => {
           .changeDeleteSpeed("natural")
           .typeString("You have the idea,")
           .pauseFor(500)
-          .typeString(" it helps you grow it.")
+          .typeString(" I help you grow it.")
           .pauseFor(1000)
           .deleteAll()
           .typeString("Defeat Writers Block.")
           .pauseFor(1000)
           .deleteAll()
-          .typeString("AI-Powered Insights.")
+          .typeString("AI-Powered Assistance.")
           .pauseFor(1000)
           .start();
       }}

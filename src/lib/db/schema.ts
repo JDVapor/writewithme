@@ -9,4 +9,7 @@ export const $works = pgTable("works", {
   editorState: text("editor_state"),
 });
 
-export type WorkType = typeof $works.$inferInsert
+export type WorkType = typeof $works.$inferInsert;
+
+// drizzle-orm
+// drizzle-kit
