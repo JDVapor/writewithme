@@ -14,7 +14,7 @@ export async function generateImagePrompt(name: string) {
         {
           role: "system",
           content:
-            "You are a world renowned artist and you specialize in your ability to come up with very creative and concise descriptions of an image based on a title that you will be provided using a flat style. The maximum length of your description is 900 characters, it will then be fed into the DALL-E API and a beautiful image will become your art.",
+            "You are a world renowned artist and you specialize in your ability to come up with very creative and concise descriptions of an image based on a title that you will be provided using a flat style. It will then be fed into the DALL-E API and a beautiful image will become your art, this art will never contain text.",
         },
         {
           role: "user",

@@ -32,10 +32,29 @@ const TipTapEditor = ({ work }: Props) => {
   const customText = Text.extend({
     addKeyboardShortcuts() {
       return {
-        "Shift-a": () => {
-          // take the last 30 words
-          const prompt = this.editor.getText().split(" ").slice(-30).join(" ");
-          complete(prompt);
+        "Shift-Space": () => {
+          // Step 1: Take the last 100 words
+          const text = this.editor.getText();
+          const words = text.split(" ");
+          const last100Words = words.slice(-100).join(" ");
+          console.log(last100Words);
+          // Step 2: Search for the first sentence-ending punctuation
+          const match = last100Words.match(/[.!?]/);
+
+          if (match) {
+            // Step 3: Find the position of the punctuation
+            const position = last100Words.indexOf(match[0]);
+
+            // Step 4: Remove everything before and including the punctuation
+            const prompt = last100Words.slice(position + 1).trim();
+            console.log(prompt);
+
+            complete(prompt);
+          } else {
+            // If no punctuation found, use the last 100 words as is
+            complete(last100Words);
+          }
+
           return true;
         },
       };
@@ -52,8 +71,10 @@ const TipTapEditor = ({ work }: Props) => {
   });
   const lastCompletion = useRef("");
 
-  const editorContentRef = useRef(null);
+  // Define the type for the ref
+  const editorContentRef = useRef<HTMLDivElement | null>(null);
 
+  // Effect to insert completion text
   useEffect(() => {
     if (!completion || !editor) return;
     const diff = completion.slice(lastCompletion.current.length);
@@ -61,6 +82,7 @@ const TipTapEditor = ({ work }: Props) => {
     editor.commands.insertContent(diff);
   }, [completion, editor]);
 
+  // ResizeObserver to monitor changes in editor content height
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
       if (editorContentRef.current) {
@@ -83,8 +105,9 @@ const TipTapEditor = ({ work }: Props) => {
         resizeObserver.unobserve(editorContentRef.current);
       }
     };
-  }, [editorContentRef.current]);
+  }, [editorContentRef]);
 
+  // Debounced state saving
   const debouncedEditorState = useDebounce(editorState, 500);
   useEffect(() => {
     if (debouncedEditorState === "") return;
@@ -116,7 +139,7 @@ const TipTapEditor = ({ work }: Props) => {
       <span className="text-sm">
         Tip: Press{" "}
         <kbd className="px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">
-          Shift + A
+          Shift + Spacebar
         </kbd>{" "}
         for AI autocomplete
       </span>

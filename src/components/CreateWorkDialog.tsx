@@ -20,6 +20,8 @@ type Props = {};
 const CreateWorkDialog = (props: Props) => {
   const router = useRouter();
   const [input, setInput] = React.useState("");
+  const [errorMessage, setErrorMessage] = React.useState("");
+
   const uploadToFirebase = useMutation({
     mutationFn: async (workId: string) => {
       const response = await axios.post("/api/uploadToFirebase", {
@@ -40,9 +42,14 @@ const CreateWorkDialog = (props: Props) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (input === "") {
-      window.alert("Please enter a title for your new workbook.");
+      setErrorMessage("Please enter a title for your new workbook.");
       return;
     }
+    if (input.length > 40) {
+      setErrorMessage("Title cannot exceed 40 characters.");
+      return;
+    }
+    setErrorMessage(""); // Clear error message on valid input
     createWorkbook.mutate(undefined, {
       onSuccess: ({ work_id }) => {
         console.log("created new work:", { work_id });
@@ -78,13 +85,13 @@ const CreateWorkDialog = (props: Props) => {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Name..."
+            placeholder="Title..."
           />
+          {errorMessage && (
+            <div className="text-red-600 mt-2">{errorMessage}</div>
+          )}
           <div className="h-4"></div>
           <div className="flex items-center gap-2">
-            <Button type="reset" variant={"secondary"}>
-              Cancel
-            </Button>
             <Button
               type="submit"
               className="bg-green-600"

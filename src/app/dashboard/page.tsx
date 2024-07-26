@@ -42,32 +42,33 @@ const DashboardPage = async (props: Props) => {
           <div className="h-8"></div>
           <Separator />
           <div className="h-8"></div>
-          {/* list all the works */}
-          {/* if no works, display this */}
           {works.length === 0 && (
             <div className="text-center">
               <h2 className="text-xl text-gray-500">You have no works yet.</h2>
             </div>
           )}
 
-          {/* display all the works */}
-          <div className="grid sm:grid-cols-3 md:grid-cols-5 grid-cols-1 gap-3">
+          <div className="grid sm:grid-cols-3 md:grid-cols-5 grid-cols-1 gap-3 auto-rows-[min-content]">
             <CreateWorkDialog />
             {works.map((work) => {
               return (
-                <a href={`/workbook/${work.id}`} key={work.id}>
-                  <div className="border border-stone-300 rounded-lg overflow-hidden flex flex-col hover:shadow-xl transition hover:-translate-y-1">
+                <a
+                  href={`/workbook/${work.id}`}
+                  key={work.id}
+                  className="border border-stone-300 rounded-lg overflow-hidden flex flex-col hover:shadow-xl transition hover:-translate-y-1"
+                >
+                  <div className="flex flex-col h-full">
                     <Image
                       width={400}
                       height={200}
                       alt={work.name}
                       src={work.imageUrl || ""}
                     />
-                    <div className="p-4">
+                    <div className="p-4 flex flex-col flex-grow">
                       <h3 className="text-xl font-semibold text-gray-900">
                         {work.name}
                       </h3>
-                      <div className="h-1"></div>
+                      <div className="flex-grow"></div>
                       <p className="text-sm text-gray-500">
                         {new Date(work.createdAt).toLocaleDateString()}
                       </p>
