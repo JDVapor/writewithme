@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
 import TipTapMenuBar from "./TipTapMenuBar";
@@ -50,18 +50,43 @@ const TipTapEditor = ({ work }: Props) => {
       setEditorState(editor.getHTML());
     },
   });
-  const lastCompletion = React.useRef("");
+  const lastCompletion = useRef("");
 
-  React.useEffect(() => {
+  const editorContentRef = useRef(null);
+
+  useEffect(() => {
     if (!completion || !editor) return;
     const diff = completion.slice(lastCompletion.current.length);
     lastCompletion.current = completion;
     editor.commands.insertContent(diff);
   }, [completion, editor]);
 
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      if (editorContentRef.current) {
+        const rect = editorContentRef.current.getBoundingClientRect();
+        if (rect.bottom < window.innerHeight) {
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: "smooth",
+          });
+        }
+      }
+    });
+
+    if (editorContentRef.current) {
+      resizeObserver.observe(editorContentRef.current);
+    }
+
+    return () => {
+      if (editorContentRef.current) {
+        resizeObserver.unobserve(editorContentRef.current);
+      }
+    };
+  }, [editorContentRef.current]);
+
   const debouncedEditorState = useDebounce(editorState, 500);
-  React.useEffect(() => {
-    // save to db
+  useEffect(() => {
     if (debouncedEditorState === "") return;
     saveWork.mutate(undefined, {
       onSuccess: (data) => {
@@ -72,17 +97,20 @@ const TipTapEditor = ({ work }: Props) => {
       },
     });
   }, [debouncedEditorState]);
+
   return (
     <>
-      <div className="flex">
+      <div className="flex items-center justify-between mb-4">
         {editor && <TipTapMenuBar editor={editor} />}
         <Button disabled variant={"outline"}>
           {saveWork.isLoading ? "Saving..." : "Saved"}
         </Button>
       </div>
 
-      <div className="prose prose-sm w-full mt-4">
-        <EditorContent editor={editor} />
+      <div className="prose prose-custom w-full mt-4">
+        <div ref={editorContentRef} className="editor-content w-full">
+          <EditorContent editor={editor} />
+        </div>
       </div>
       <div className="h-4"></div>
       <span className="text-sm">
@@ -92,6 +120,14 @@ const TipTapEditor = ({ work }: Props) => {
         </kbd>{" "}
         for AI autocomplete
       </span>
+
+      <style jsx>{`
+        .editor-content .ProseMirror {
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+        }
+      `}</style>
     </>
   );
 };
