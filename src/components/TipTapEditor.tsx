@@ -33,10 +33,23 @@ const TipTapEditor = ({ work }: Props) => {
     addKeyboardShortcuts() {
       return {
         "Shift-Space": () => {
-          // take the last 100 words
-          const prompt = this.editor.getText().split(" ").slice(-100).join(" ");
-          console.log(prompt);
-          complete(prompt);
+          // Get the current selection
+          const { state } = this.editor;
+          const { from } = state.selection;
+
+          // Get the text content up to the cursor position
+          const textBeforeCursor = state.doc.textBetween(0, from, " ");
+
+          // Split the text into words and take the last 100
+          const last100Words = textBeforeCursor
+            .split(/\s+/)
+            .slice(-100)
+            .join(" ");
+
+          // Log and complete with the last 100 words
+          console.log(last100Words);
+          complete(last100Words);
+
           return true;
         },
       };
